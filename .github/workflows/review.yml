@@ -1,0 +1,28 @@
+name: Submission Review Demo
+
+on:
+  pull_request:
+    paths:
+      - '*.md'
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print Submission Details
+      run: |
+        echo "GitHub Pages URL: ${{ github.event.pull_request.body | toJSON }}"
+        echo "Repository URL: ${{ github.event.pull_request.body | toJSON }}"
+
+    - name: Create Review Comment
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const githubPagesURL = context.payload.pull_request.body.match(/GitHub Pages URL:\s*\[(.+?)\]/)?.[1] || "Not Provided";
+          const repoURL = context.payload.pull_request.body.match(/Repository URL:\s*\[(.+?)\]/)?.[1] || "Not Provided";
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            body: `### Automated Review\n\n**GitHub Pages URL:** ${githubPagesURL}\n**Repository URL:** ${repoURL}\n\nThis is a demo of automated review using GitHub Actions! 🚀`,
+          });
